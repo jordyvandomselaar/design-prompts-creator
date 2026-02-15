@@ -1,12 +1,12 @@
 <design-system>
 
-# Design Style: SwiftUI macOS Native Messaging
+# Design Style: SwiftUI macOS Native
 
 ## Design Philosophy
 
 Design for **native macOS familiarity first**: quiet, precise, and materially layered rather than visually loud. The interface should feel like a first-party SwiftUI app rendered with AppKit-level polish, where hierarchy comes from vibrancy, subtle separators, and typography cadence, not decorative depth.
 
-This style is inspired by iMessage on macOS: a translucent left sidebar, restrained neutral palette, compact toolbars, pill search, and calm message surfaces. The result should feel effortless and "already installed" on macOS, while still being implementable in Electron.
+This style prioritizes a translucent navigation pane, restrained neutral palette, compact toolbars, capsule search, and calm content surfaces. The result should feel effortless and "already installed" on macOS, while still being implementable in Electron.
 
 Core intent:
 
@@ -35,13 +35,13 @@ Use a macOS-like neutral ramp with low chroma.
 - **Selection Blue**: `#0A84FF`
 - **Selection Blue Hover**: `#0077ED`
 - **Selection Text On Blue**: `#FFFFFF`
-- **Incoming Bubble Fill**: `#E9E9EB`
-- **Incoming Bubble Text**: `#1D1D1F`
-- **Outgoing Bubble Fill**: `#0A84FF`
-- **Outgoing Bubble Text**: `#FFFFFF`
+- **Accent Surface**: `#0A84FF`
+- **Accent Text On Surface**: `#FFFFFF`
+- **Muted Surface**: `#E9E9EB`
+- **Muted Surface Text**: `#1D1D1F`
 - **Toolbar Icon**: `#5E5E63`
-- **Composer Fill**: `#FFFFFF`
-- **Composer Border**: `rgba(60, 60, 67, 0.20)`
+- **Input Surface**: `#FFFFFF`
+- **Input Border**: `rgba(60, 60, 67, 0.20)`
 
 ### Material / Vibrancy Tokens
 
@@ -55,22 +55,22 @@ Use a macOS-like neutral ramp with low chroma.
 Use San Francisco stack to mirror SwiftUI/AppKit defaults.
 
 - **Font Stack**: `"SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif`
-- **Sidebar Section / Meta**: `11px`, `500`, `0.01em`, line-height `1.35`
-- **Conversation Name**: `13px`, `600`, `0`, line-height `1.3`
-- **Conversation Preview**: `12px`, `400`, `0`, line-height `1.35`
+- **Section Label / Meta**: `11px`, `500`, `0.01em`, line-height `1.35`
+- **Navigation Item Title**: `13px`, `600`, `0`, line-height `1.3`
+- **Navigation Item Subtitle**: `12px`, `400`, `0`, line-height `1.35`
 - **Toolbar Title**: `13px`, `600`, `0`, line-height `1.25`
-- **Message Body**: `14px`, `400`, `0`, line-height `1.4`
-- **Composer Input**: `13px`, `400`, `0`, line-height `1.35`
+- **Body Copy**: `14px`, `400`, `0`, line-height `1.4`
+- **Input Text**: `13px`, `400`, `0`, line-height `1.35`
 - **Button/Control Label**: `12px`, `500`, `0.01em`, line-height `1.2`
 
 ### Radius & Borders
 
 - **Window Corner Radius**: `12px` (custom shell previews)
 - **Search Field Radius**: `10px`
-- **Sidebar Row Radius**: `8px`
-- **Avatar Radius**: `9999px`
-- **Message Bubble Radius**: `18px`
-- **Composer Radius**: `10px`
+- **List Row Radius**: `8px`
+- **Avatar/Icon Radius**: `9999px`
+- **Primary Surface Radius**: `12px`
+- **Input Radius**: `10px`
 - **Toolbar Icon Button Radius**: `8px`
 - **Standard Border Width**: `1px`
 - **Hairline Divider**: `0.5px` where device pixel ratio allows
@@ -91,38 +91,38 @@ Use San Francisco stack to mirror SwiftUI/AppKit defaults.
 - Toolbar background should be subtly translucent, not fully opaque.
 - Avoid thick framed borders around the app content.
 
-### Sidebar (Critical Signature)
+### Navigation Sidebar (Critical Signature)
 
-- Fixed left pane (`300px` to `340px` typical desktop width).
+- Fixed left pane (`280px` to `340px` typical desktop width).
 - Apply vibrancy token with translucent tint layer.
 - Add one vertical split divider on the right edge.
 - Search field at top: soft capsule, leading search icon, muted placeholder.
-- Conversation list rows:
-  - Avatar + name + preview + timestamp.
+- Navigation rows:
+  - Optional leading icon/avatar.
+  - Title with supporting metadata line.
   - Tight but readable vertical rhythm.
   - Hover is neutral tint.
   - Active row is system blue rounded rectangle with white text.
 - Keep row separators subtle and optionally omitted between grouped blocks.
 
-### Conversation Header
+### Primary Toolbar
 
-- Compact top bar in message pane with contact avatar, title, and meta line.
-- Toolbar actions appear as icon-only buttons with subtle hover fills.
-- Header and message body separated by a single hairline divider.
+- Compact top bar in content pane with section title and contextual metadata.
+- Actions appear as icon-only buttons with subtle hover fills.
+- Toolbar and body separated by a single hairline divider.
 
-### Message Bubbles
+### Main Content Surface
 
-- Incoming: light neutral bubble, dark text.
-- Outgoing: system blue bubble, white text.
-- Bubble max width: `min(62ch, 68%)` on desktop.
-- Bubble spacing: `6px` vertical, `10px` between logical groups.
-- Timestamp/meta is tiny, tertiary text, and visually quiet.
+- Use spacious but restrained canvas for tables, lists, forms, and detail layouts.
+- Prefer neutral surfaces with precise separators over heavy card stacks.
+- Keep visual emphasis on information hierarchy, not ornament.
+- Tertiary metadata should stay small, low-contrast, and quiet.
 
-### Composer Bar
+### Input & Action Region
 
-- Stick to bottom, with top hairline separator from message list.
-- Input is rounded rectangle, white fill, subtle border.
-- Left actions (plus/attachments), right actions (emoji/mic/send) are icon buttons.
+- Keep frequently used controls anchored and discoverable.
+- Inputs should use rounded rectangles, white fill, and subtle border.
+- Leading/trailing utility actions should be icon buttons.
 - Maintain minimum `32px` control hit area.
 
 ### Iconography
@@ -150,32 +150,33 @@ Use San Francisco stack to mirror SwiftUI/AppKit defaults.
 
 ### Structural Layout
 
-Use a two-pane messaging layout with desktop-first proportions.
+Use a desktop-first native app shell with adaptable panes.
 
 1. **Title/Toolbar region**: top strip across full width.
-2. **Left sidebar**: translucent, fixed width (`300px` to `340px`).
-3. **Main conversation area**: flexible width remaining space.
-4. **Bottom composer**: anchored in main area.
+2. **Left sidebar**: translucent, fixed width (`280px` to `340px`).
+3. **Main workspace**: flexible width remaining space.
+4. **Optional utility pane**: right-side contextual panel (`280px` to `360px`) when needed.
+5. **Bottom utility region**: optional anchored actions or input controls.
 
 ### Sizing & Spacing Rhythm
 
 - Base spacing unit: `4px`
 - Common paddings: `8px`, `12px`, `16px`
 - Sidebar content padding: `10px` to `12px`
-- Main conversation horizontal padding: `20px` to `28px`
+- Main content horizontal padding: `20px` to `28px`
 - Section separators: 1 hairline, never heavy borders
 
 ### Grid Behavior
 
 - Sidebar is fixed; main pane is fluid.
-- Message column should align to a comfortable reading width.
-- Keep conversation content top-aligned with large empty-state tolerance.
+- Keep readable line lengths and avoid edge-to-edge dense text.
+- Allow content surfaces to breathe with intentional negative space.
 
 ### Responsive Behavior
 
 - At narrow widths (`<1024px`), allow sidebar collapse to overlay/drawer.
 - Maintain translucent material behavior for collapsed sidebar.
-- Preserve composer accessibility and minimum hit targets on smaller widths.
+- Preserve accessibility and minimum hit targets on smaller widths.
 
 ## The "Bold Factor"
 
@@ -193,11 +194,11 @@ To avoid generic web UI drift, enforce these signatures:
 4. **Hairline Precision**
 - Frequent use of subtle separators instead of cards and shadows.
 
-5. **Blue Selection Row Behavior**
-- Selected conversation row uses a rounded blue highlight with white text/icons.
+5. **Blue Active Row Behavior**
+- Selected navigation row uses a rounded blue highlight with white text/icons.
 
-6. **Quiet Main Pane with Intentional Negative Space**
-- Conversation area should tolerate emptiness; do not force content blocks everywhere.
+6. **Quiet Main Workspace with Intentional Negative Space**
+- Primary content area should tolerate emptiness; do not force decorative blocks everywhere.
 
 7. **Utility-First Icon Controls**
 - Small icon-only actions with minimal hover fills, not large floating action buttons.
@@ -207,10 +208,10 @@ To avoid generic web UI drift, enforce these signatures:
 - Do not use bright gradient backgrounds or hero-style marketing treatments.
 - Do not replace vibrancy with heavy opaque cards.
 - Do not use thick borders, dramatic shadows, or neumorphism.
-- Do not oversize text (especially sidebar and toolbar labels).
+- Do not oversize text (especially navigation and toolbar labels).
 - Do not use rounded-2xl/3xl everywhere; keep radii disciplined.
 - Do not apply blur effects across all surfaces.
-- Do not turn list rows into card components with large gaps.
+- Do not turn navigation rows into card components with large gaps.
 - Do not introduce playful/elastic motion that feels iOS-first instead of macOS desktop-first.
 - Do not use non-system accent colors as primary selection state.
 
@@ -237,7 +238,7 @@ To avoid generic web UI drift, enforce these signatures:
 
 - Maintain WCAG AA contrast for text on all neutral and blue surfaces.
 - Ensure selected row text on blue is legible at small sizes.
-- Provide keyboard navigation for conversation list and toolbar actions.
+- Provide keyboard navigation for navigation lists and toolbar actions.
 - Focus indicators must remain visible on translucent materials.
 - Minimum desktop target size: `28x28px` for icon controls; `32px` preferred.
 - Respect reduced-motion preferences by minimizing transforms.
@@ -248,9 +249,8 @@ To avoid generic web UI drift, enforce these signatures:
 
 - [ ] Sidebar uses translucent material with blur and tint.
 - [ ] Sidebar split divider is present and subtle.
-- [ ] Search field, conversation rows, and selection behavior mirror native rhythm.
-- [ ] Message bubbles use neutral incoming + system-blue outgoing convention.
-- [ ] Toolbar and composer use compact macOS-like control sizing.
+- [ ] Search field, navigation rows, and selection behavior mirror native rhythm.
+- [ ] Toolbar and optional utility region use compact macOS-like control sizing.
 - [ ] Typography uses SF Pro system stack and restrained scale.
 - [ ] Hover/active/focus states are defined and subtle.
 - [ ] Layout remains desktop-native and avoids card-heavy web patterns.
