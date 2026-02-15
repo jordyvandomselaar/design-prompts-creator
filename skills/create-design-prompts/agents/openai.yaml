@@ -1,0 +1,7 @@
+interface:
+  display_name: "Create Design Prompts"
+  short_description: "Build detailed design prompts from chats and screenshots"
+  default_prompt: "Use $create-design-prompts to draft a high-fidelity prompt.md from my goals and UI screenshots."
+
+policy:
+  allow_implicit_invocation: true
