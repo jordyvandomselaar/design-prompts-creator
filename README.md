@@ -1,15 +1,5 @@
-# design-skill-creator
+# Design Skill Creator
 
-To install dependencies:
+This repository contains existing design prompts you can use, as well as a skill that can create new design prompts based on user input.
 
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.3.6. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+Tell your favourite agent to use the create-design-prompts skill to create new design prompts based on your input and/or screenshots of existing interfaces.
