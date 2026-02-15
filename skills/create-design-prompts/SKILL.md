@@ -1,6 +1,6 @@
 ---
 name: create-design-prompts
-description: Create production-grade UI design prompts from user conversations, screenshots of existing interfaces, or both. Use for reverse-engineering visual styles, turning design goals into concrete token-level prompt specs, emulating existing aesthetics, and drafting new prompt.md files with detailed layout, component, interaction, and accessibility guidance.
+description: Create production-grade UI design prompts from user conversations, screenshots of existing interfaces, or both. Use for reverse-engineering visual styles, turning design goals into concrete token-level prompt specs, emulating existing aesthetics, drafting prompt.md files, and maintaining screenshot artifacts at prompts/<design-style-name>/screenshot.jpg after every prompt update.
 ---
 
 # Create Design Prompts
@@ -14,6 +14,19 @@ Use progressive disclosure to stay efficient:
 - Read `references/interview-flow.md` when requirements are underspecified.
 - Read `references/screenshot-analysis-rubric.md` whenever screenshots are provided.
 - Read `references/style-taxonomy.md` when naming or translating style traits into concrete tokens.
+
+## Artifact Folder Contract (Mandatory)
+
+Store every prompt in this exact layout:
+
+- `prompts/<design-style-name>/prompt.md`
+- `prompts/<design-style-name>/screenshot.jpg`
+
+Rules:
+
+- Normalize `<design-style-name>` to lowercase kebab-case.
+- After every create or update to `prompt.md`, regenerate `screenshot.jpg` in the same folder.
+- Do not place design prompt artifacts outside `prompts/`.
 
 ## Core Behavior
 
@@ -90,12 +103,20 @@ Use section blueprints in `references/prompt-architecture.md`.
 - Include explicit anti-patterns.
 - Include accessibility guardrails.
 
-7. Run quality gate
+7. Generate screenshot artifact (mandatory after every prompt edit)
+- Render the prompt result page to HTML (or update existing preview HTML).
+- Capture a full-page screenshot using the repo script:
+  `bun run screenshot:html -- <preview.html> prompts/<design-style-name>/screenshot.jpg`
+- Ensure the screenshot reflects the latest prompt revision.
+
+8. Run quality gate
 - Validate against `references/quality-gate.md`.
 - Ensure every major claim is backed by user input or screenshot evidence.
 - Ensure enough detail exists for another model to generate the intended UI with low ambiguity.
+- Ensure the artifact folder contract is satisfied.
+- Run `scripts/validate_prompt_artifacts.py` for the updated style folder.
 
-8. Deliver output
+9. Deliver output
 - Return the final prompt in markdown.
 - Separate assumptions from requirements.
 - Offer 1-3 optional refinement directions only when useful.
@@ -136,9 +157,9 @@ When multiple screenshots conflict with each other:
 2. Choose one primary direction.
 3. Use secondary traits as optional accents.
 
-## Reusable Script
+## Reusable Scripts
 
-Use `scripts/scaffold_prompt.py` to generate a structured first draft.
+Use `scripts/scaffold_prompt.py` to create the canonical prompt folder and scaffold `prompt.md`.
 
 Examples:
 
@@ -146,17 +167,28 @@ Examples:
 python3 scripts/scaffold_prompt.py \
   --format design-system \
   --style-name "High-Contrast Swiss Flat" \
-  --output /tmp/new-prompt.md
+  --repo-root /path/to/repo
 ```
 
 ```bash
 python3 scripts/scaffold_prompt.py \
   --format summary-spec \
   --style-name "Editorial Brutalist Commerce" \
-  --output /tmp/new-prompt.md
+  --repo-root /path/to/repo
 ```
 
-Generate the scaffold, then immediately replace placeholders with evidence-backed values.
+This script writes `prompts/<design-style-name>/prompt.md` and prints the expected screenshot path.
+Generate the scaffold, then replace placeholders with evidence-backed values and create `screenshot.jpg`.
+
+Use `scripts/validate_prompt_artifacts.py` to enforce the artifact contract.
+
+```bash
+python3 scripts/validate_prompt_artifacts.py \
+  --repo-root /path/to/repo \
+  --style-name "High-Contrast Swiss Flat"
+```
+
+Run this validator after updating a prompt and regenerating `screenshot.jpg`.
 
 ## Output Contract
 
@@ -170,5 +202,7 @@ Return prompts that include all of the following:
 - Accessibility constraints.
 - Anti-pattern list.
 - Implementation checklist.
+- Artifact folder output at `prompts/<design-style-name>/`.
+- Updated screenshot at `prompts/<design-style-name>/screenshot.jpg`.
 
 If the user supplies screenshots, ensure the output visibly preserves key traits from those references.

@@ -2,6 +2,16 @@
 
 Use one architecture per output. Do not mix structures.
 
+## Artifact Packaging (Mandatory)
+
+Write the final prompt to:
+
+- `prompts/<design-style-name>/prompt.md`
+
+After writing or updating `prompt.md`, regenerate:
+
+- `prompts/<design-style-name>/screenshot.jpg`
+
 ## Architecture A: Design-System Format
 
 Use when the user needs high determinism and implementation-ready detail.

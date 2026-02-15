@@ -61,6 +61,15 @@ Fail if accessibility is absent or tokenless.
 
 Fail if screenshot analysis is not reflected in output.
 
+## Gate 8: Artifact Contract
+
+- Prompt file is located at `prompts/<design-style-name>/prompt.md`.
+- Screenshot file is located at `prompts/<design-style-name>/screenshot.jpg`.
+- `screenshot.jpg` is regenerated after every update to `prompt.md`.
+- `scripts/validate_prompt_artifacts.py` passes for the updated style folder.
+
+Fail if the folder structure or screenshot freshness requirement is not met.
+
 ## Final Acceptance Rule
 
 Approve only when every gate passes.

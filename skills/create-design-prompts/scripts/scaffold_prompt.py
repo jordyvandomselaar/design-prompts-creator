@@ -4,7 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
+
+
+def slugify_style_name(style_name: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", style_name.lower()).strip("-")
+    return slug
 
 
 def build_design_system_template(style_name: str, assumptions: bool) -> str:
@@ -168,7 +174,7 @@ Describe typography, palette, visual attitude, and interaction personality.
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Scaffold a design prompt markdown file.",
+        description="Scaffold a design prompt at prompts/<style-slug>/prompt.md.",
     )
     parser.add_argument(
         "--format",
@@ -183,31 +189,48 @@ def parse_args() -> argparse.Namespace:
         help="Human-readable style name for the template title.",
     )
     parser.add_argument(
-        "--output",
-        required=True,
-        help="Output markdown path.",
+        "--repo-root",
+        default=".",
+        help="Repository root where prompts/ lives. Defaults to current directory.",
     )
     parser.add_argument(
         "--include-assumptions",
         action="store_true",
         help="Append an assumptions section to the scaffold.",
     )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite prompt.md if it already exists.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    style_slug = slugify_style_name(args.style_name)
+    if not style_slug:
+        raise ValueError("Could not derive a valid style slug from --style-name")
 
-    output_path = Path(args.output).expanduser().resolve()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    repo_root = Path(args.repo_root).expanduser().resolve()
+    prompt_dir = repo_root / "prompts" / style_slug
+    prompt_path = prompt_dir / "prompt.md"
+    screenshot_path = prompt_dir / "screenshot.jpg"
+    prompt_dir.mkdir(parents=True, exist_ok=True)
+
+    if prompt_path.exists() and not args.overwrite:
+        raise FileExistsError(
+            f"Prompt already exists: {prompt_path}. Use --overwrite to replace it."
+        )
 
     if args.prompt_format == "design-system":
         content = build_design_system_template(args.style_name, args.include_assumptions)
     else:
         content = build_summary_spec_template(args.style_name, args.include_assumptions)
 
-    output_path.write_text(content, encoding="utf-8")
-    print(f"Wrote scaffold: {output_path}")
+    prompt_path.write_text(content, encoding="utf-8")
+    print(f"Wrote scaffold: {prompt_path}")
+    print(f"Expected screenshot path: {screenshot_path}")
     return 0
 
 

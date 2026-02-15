@@ -10,20 +10,24 @@ const DEFAULT_HEIGHT = 900;
 
 type CliOptions = {
   inputHtml: string;
-  outputPng: string;
+  outputImage: string;
   width: number;
   height: number;
+  quality: number;
 };
+
+const DEFAULT_JPEG_QUALITY = 90;
 
 function printUsage(): void {
   console.log(
     [
       "Usage:",
-      "  bun run screenshot:html -- <input.html> [output.png] [--width <px>] [--height <px>]",
+      "  bun run screenshot:html -- <input.html> [output.(png|jpg|jpeg)] [--width <px>] [--height <px>] [--quality <1-100>]",
       "",
       "Examples:",
       "  bun run screenshot:html -- ./example.html",
       "  bun run screenshot:html -- ./example.html ./screenshots/example.png --width 1280 --height 800",
+      "  bun run screenshot:html -- ./preview.html ./prompts/material-you/screenshot.jpg --quality 88",
     ].join("\n"),
   );
 }
@@ -41,6 +45,14 @@ function parseDimension(flagName: string, value?: string): number {
   return parsed;
 }
 
+function parseQuality(flagName: string, value?: string): number {
+  const parsed = parseDimension(flagName, value);
+  if (parsed > 100) {
+    throw new Error(`Invalid value for ${flagName}: ${value}. Use a value from 1 to 100.`);
+  }
+  return parsed;
+}
+
 function parseArgs(argv: string[]): CliOptions {
   if (argv.length === 0 || argv.includes("--help") || argv.includes("-h")) {
     printUsage();
@@ -50,6 +62,7 @@ function parseArgs(argv: string[]): CliOptions {
   const positional: string[] = [];
   let width = DEFAULT_WIDTH;
   let height = DEFAULT_HEIGHT;
+  let quality = DEFAULT_JPEG_QUALITY;
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -65,6 +78,12 @@ function parseArgs(argv: string[]): CliOptions {
 
     if (arg === "--height") {
       height = parseDimension("--height", argv[i + 1]);
+      i += 1;
+      continue;
+    }
+
+    if (arg === "--quality") {
+      quality = parseQuality("--quality", argv[i + 1]);
       i += 1;
       continue;
     }
@@ -85,9 +104,9 @@ function parseArgs(argv: string[]): CliOptions {
     throw new Error("Missing input HTML file path.");
   }
 
-  const outputPng = positional[1] ?? "";
+  const outputImage = positional[1] ?? "";
 
-  return { inputHtml, outputPng, width, height };
+  return { inputHtml, outputImage, width, height, quality };
 }
 
 function assertInsideRepo(repoRoot: string, targetPath: string): void {
@@ -110,7 +129,9 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 async function main(): Promise<void> {
-  const { inputHtml, outputPng, width, height } = parseArgs(process.argv.slice(2));
+  const { inputHtml, outputImage, width, height, quality } = parseArgs(
+    process.argv.slice(2),
+  );
   const repoRoot = process.cwd();
 
   const inputPath = path.resolve(repoRoot, inputHtml);
@@ -123,7 +144,19 @@ async function main(): Promise<void> {
     "screenshots",
     `${path.basename(inputPath, path.extname(inputPath))}.png`,
   );
-  const outputPath = path.resolve(repoRoot, outputPng || defaultOutput);
+  const outputPath = path.resolve(repoRoot, outputImage || defaultOutput);
+  const extension = path.extname(outputPath).toLowerCase();
+  let type: "png" | "jpeg";
+  if (extension === ".png") {
+    type = "png";
+  } else if (extension === ".jpg" || extension === ".jpeg") {
+    type = "jpeg";
+  } else {
+    throw new Error(
+      `Unsupported output extension: ${extension || "(none)"}. Use .png, .jpg, or .jpeg.`,
+    );
+  }
+
   assertInsideRepo(repoRoot, outputPath);
   await mkdir(path.dirname(outputPath), { recursive: true });
 
@@ -141,11 +174,20 @@ async function main(): Promise<void> {
       "document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()",
     );
 
-    await page.screenshot({
-      path: outputPath,
-      fullPage: true,
-      type: "png",
-    });
+    if (type === "jpeg") {
+      await page.screenshot({
+        path: outputPath,
+        fullPage: true,
+        type,
+        quality,
+      });
+    } else {
+      await page.screenshot({
+        path: outputPath,
+        fullPage: true,
+        type,
+      });
+    }
 
     const printableOutput = path.relative(repoRoot, outputPath) || outputPath;
     console.log(`Saved screenshot: ${printableOutput}`);
